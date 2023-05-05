@@ -2,4 +2,15 @@
     <string name="app_name">ChattingApp</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="randomwords">FirebaseDatabase.getInstance().getReference("ChatRoom/$senderRoom/Message")
+            .addValueEventListener(
+                object : ValueEventListener {
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        messageArray.clear()
+                        if (snapshot.exists()) {
+                            for (iing.recyclerViewChatting
+                            val position = recyclerVieemCount
+                            binding.recyclerViewChatting.smoothScrollToPosition(position!!)
+                            chatAdapter.notifyDataSetChanged()dlfmdfmsldmflsdmfnfnalknaflkndlfndlndlf daf sdasd as sa as sdsdass fdfdsfd f d sdf dsf dfdf df
+                       </string>
 </resources>

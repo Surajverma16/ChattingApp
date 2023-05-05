@@ -2,12 +2,13 @@ package com.example.chattingapp.authorization
 
 import android.os.Bundle
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.fragment.app.Fragment
 import com.example.chattingapp.HomePage
+import com.example.chattingapp.MainTabLayout
 import com.example.chattingapp.R
 import com.example.chattingapp.databinding.FragmentSignInPageBinding
 import com.google.firebase.FirebaseException
@@ -16,8 +17,6 @@ import com.google.firebase.auth.PhoneAuthCredential
 import com.google.firebase.auth.PhoneAuthOptions
 import com.google.firebase.auth.PhoneAuthProvider
 import com.google.firebase.auth.ktx.auth
-import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import java.util.concurrent.TimeUnit
 
@@ -53,7 +52,7 @@ class SignInPage : Fragment() {
             override fun onVerificationCompleted(p0: PhoneAuthCredential) {
 
                 requireActivity().supportFragmentManager.beginTransaction().apply {
-                    replace(R.id.fragment_container, HomePage())
+                    replace(R.id.fragment_container, MainTabLayout())
                     addToBackStack(this@SignInPage.toString())
                     commit()
                 }
@@ -95,7 +94,7 @@ class SignInPage : Fragment() {
         super.onStart()
         if(auth.currentUser?.uid != null){
             requireActivity().supportFragmentManager.beginTransaction().apply {
-                replace(R.id.fragment_container, HomePage())
+                replace(R.id.fragment_container, MainTabLayout())
                 commit()
             }
         }

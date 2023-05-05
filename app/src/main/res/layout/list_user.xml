@@ -3,19 +3,10 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:padding="10sp"
-    android:layout_height="wrap_content">
-
-
-        <TextView
-            android:id="@+id/txtUserName"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="10sp"
-            android:textSize="17sp"
-            app:layout_constraintStart_toEndOf="@id/imgProfilePic"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:text="Name" />
+    android:layout_height="wrap_content"
+    android:paddingStart="@dimen/_10sdp"
+    android:paddingTop="@dimen/_10sdp"
+    android:paddingEnd="@dimen/_10sdp">
 
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/imgProfilePic"
@@ -25,5 +16,39 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/txtUserName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/_10ssp"
+        android:textColor="@color/black"
+        android:textSize="@dimen/_14ssp"
+        app:layout_constraintBottom_toTopOf="@id/txtLastMessage"
+        app:layout_constraintStart_toEndOf="@id/imgProfilePic"
+        app:layout_constraintTop_toTopOf="@id/imgProfilePic"
+        tools:text="Name" />
+
+    <TextView
+        android:id="@+id/txtLastMessage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/_10ssp"
+        android:maxLines="1"
+        android:textSize="@dimen/_10ssp"
+        app:layout_constraintBottom_toBottomOf="@id/imgProfilePic"
+        app:layout_constraintStart_toEndOf="@id/imgProfilePic"
+        app:layout_constraintTop_toBottomOf="@id/txtUserName"
+        tools:text="Last Message" />
+
+    <TextView
+        android:id="@+id/txtMessageTimeAndDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/_8ssp"
+        app:layout_constraintBottom_toBottomOf="@id/txtUserName"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/txtUserName"
+        tools:text="Time &amp; Date" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

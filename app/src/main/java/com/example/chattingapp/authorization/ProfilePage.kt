@@ -1,38 +1,29 @@
 package com.example.chattingapp.authorization
 
-import android.annotation.SuppressLint
 import android.content.Intent
-import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
-import android.provider.OpenableColumns
-import android.text.TextUtils.replace
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.content.ContentProviderCompat.requireContext
-import androidx.core.net.toUri
+import androidx.fragment.app.Fragment
 import com.example.chattingapp.HomePage
-import com.example.chattingapp.MainActivity
+import com.example.chattingapp.MainTabLayout
 import com.example.chattingapp.R
 import com.example.chattingapp.databinding.FragmentProfilePageBinding
 import com.example.chattingapp.model.DisplayAllUser
-import com.example.chattingapp.model.DisplayUserData
 import com.example.chattingapp.model.SendAllUserData
 import com.example.chattingapp.model.SendUserData
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
-import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import com.google.firebase.storage.ktx.storage
-import java.io.File
 
 
 class ProfilePage : Fragment() {
@@ -43,8 +34,6 @@ class ProfilePage : Fragment() {
     private var imageUri: Uri? = null
     lateinit var storage: StorageReference
     private var key: String? = null
-    private var userKey: String? = null
-    private var listUserDetails = arrayListOf<DisplayUserData>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,7 +42,7 @@ class ProfilePage : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?,
-    ): View? {
+    ): View {
         // Inflate the layout for this fragment
         binding = FragmentProfilePageBinding.inflate(layoutInflater, container, false)
         return binding.root
@@ -121,15 +110,15 @@ class ProfilePage : Fragment() {
             }
         )
 
-            binding.imgUserImage.setOnClickListener {
-                val intent = Intent(Intent.ACTION_GET_CONTENT)
-                intent.type = "image/*"
-                imagePicker.launch(intent)
-            }
+        binding.imgUserImage.setOnClickListener {
+            val intent = Intent(Intent.ACTION_GET_CONTENT)
+            intent.type = "image/*"
+            imagePicker.launch(intent)
+        }
 
-            binding.btnSaveInfo.setOnClickListener {
-                newUser()
-            }
+        binding.btnSaveInfo.setOnClickListener {
+            newUser()
+        }
 
     }
 
@@ -146,7 +135,7 @@ class ProfilePage : Fragment() {
     private fun updateUI() {
         requireActivity().supportFragmentManager.beginTransaction()
             .apply {
-                replace(R.id.fragment_container, HomePage())
+                replace(R.id.fragment_container, MainTabLayout())
                 commit()
             }
     }
@@ -162,7 +151,7 @@ class ProfilePage : Fragment() {
             FirebaseAuth.getInstance().currentUser?.uid!!,
             binding.edtUserName.text.toString(),
             number!!,
-            userID!!
+            userID
         )
         val user = FirebaseAuth.getInstance().currentUser?.phoneNumber
         storage.child("Users/Profile_Pictures/$user/$userID")
@@ -172,7 +161,7 @@ class ProfilePage : Fragment() {
                     database.child("User/$userID").setValue(data)
                     requireActivity().supportFragmentManager.beginTransaction()
                         .apply {
-                            replace(R.id.fragment_container, HomePage())
+                            replace(R.id.fragment_container, MainTabLayout())
                             commit()
                         }
                 }
@@ -186,6 +175,11 @@ class ProfilePage : Fragment() {
             }
     }
 
+    private val imagePicker: ActivityResultLauncher<Intent> =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            imageUri = result.data?.data!!
+            binding.imgUserImage.setImageURI(imageUri)
+        }
     /*@SuppressLint("Range")
     private fun getFileName(fileUri: Uri?): String {
         var fileName: String? = null
@@ -207,9 +201,5 @@ class ProfilePage : Fragment() {
         return fileName!!
     }*/
 
-    private val imagePicker: ActivityResultLauncher<Intent> =
-        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            imageUri = result.data?.data!!
-            binding.imgUserImage.setImageURI(imageUri)
-        }
+
 }
