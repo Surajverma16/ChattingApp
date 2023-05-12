@@ -8,4 +8,5 @@ data class MessageData(
     val imageUri: String = "",
     val fileUrl: String = "",
     val fileName: String = "",
+    val messageRemark: Boolean = false
 )

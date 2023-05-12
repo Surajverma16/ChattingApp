@@ -7,5 +7,6 @@ data class DisplayUserData(
     val profileImgName: String = "",
     val token: String = "",
     val onlineStatus : Boolean = false,
-    val lastSeen : String = ""
+    val lastTime : String = "",
+    val lastDate : String = ""
 )

@@ -3,6 +3,7 @@ package com.example.chattingapp
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.fragment.app.Fragment
 import com.example.chattingapp.authorization.SignInPage
 import com.example.chattingapp.databinding.ActivityMainBinding
 import com.google.firebase.auth.FirebaseAuth
@@ -23,8 +24,6 @@ class MainActivity : AppCompatActivity() {
             replace(R.id.fragment_container, SignInPage())
             commit()
         }
-
-
     }
 
     override fun onStart() {
@@ -50,10 +49,27 @@ class MainActivity : AppCompatActivity() {
 
             val lastSeen = HashMap<String, Any>()
             lastSeen.put(
-                "lastSeen",
+                "lastTime",
                 SimpleDateFormat("hh:mm a").format(Calendar.getInstance().time)
             )
             FirebaseDatabase.getInstance().getReference("User/$userId").updateChildren(lastSeen)
+
+            val lastDate = HashMap<String, Any>()
+            lastDate.put(
+                "lastDate",
+                SimpleDateFormat("dd/MM/yy").format(Calendar.getInstance().time)
+            )
+            FirebaseDatabase.getInstance().getReference("User/$userId").updateChildren(lastDate)
+
+        }
+    }
+
+    override fun onBackPressed() {
+        val currentFragment = supportFragmentManager.findFragmentById(R.id.fragment_container)
+        if(currentFragment is MainTabLayout){
+            finish()
+        }else{
+            supportFragmentManager.popBackStack()
         }
     }
 }

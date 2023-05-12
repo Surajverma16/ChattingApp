@@ -1,6 +1,7 @@
 package com.example.chattingapp.adapter
 
 import android.graphics.BitmapFactory
+import android.graphics.Typeface
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -8,9 +9,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.example.chattingapp.MainActivity
 import com.example.chattingapp.R
-import com.example.chattingapp.ViewImage
 import com.example.chattingapp.model.DeleteMessageData
 import com.example.chattingapp.model.DisplayAllUser
 import com.google.firebase.auth.FirebaseAuth
@@ -20,6 +19,9 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.storage.FirebaseStorage
 import java.io.File
+import java.text.SimpleDateFormat
+import java.util.*
+import kotlin.collections.ArrayList
 
 class UserAdapter(val user: ArrayList<DisplayAllUser>, private val clickedChat: onChatClicked) :
     RecyclerView.Adapter<UserAdapter.userViewHolder>() {
@@ -28,6 +30,7 @@ class UserAdapter(val user: ArrayList<DisplayAllUser>, private val clickedChat: 
         val userPic = view.findViewById<ImageView>(R.id.imgProfilePic)
         val lastMessage = view.findViewById<TextView>(R.id.txtLastMessage)
         val dateTime = view.findViewById<TextView>(R.id.txtMessageTimeAndDate)
+        val messageCount = view.findViewById<TextView>(R.id.txtMessageCount)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): userViewHolder {
@@ -57,20 +60,45 @@ class UserAdapter(val user: ArrayList<DisplayAllUser>, private val clickedChat: 
                 object : ValueEventListener {
                     override fun onDataChange(snapshot: DataSnapshot) {
                         if (snapshot.exists()) {
+                            var count = 0
                             for (i in snapshot.children) {
                                 Log.d("User snapshot", i.toString())
                                 val listData = i.getValue(DeleteMessageData::class.java)
                                 listData?.key = i.key.toString()
+
+                                if (!listData!!.messageRemark && listData.senderId == user[position].userID) {
+                                    count++
+                                    holder.messageCount.visibility = View.VISIBLE
+                                    holder.messageCount.text = count.toString()
+                                    holder.lastMessage.setTypeface(null, Typeface.BOLD)
+                                } else {
+                                    holder.messageCount.visibility = View.GONE
+                                }
                                 Log.d("chat listData", listData.toString())
+                                val currentDate =
+                                    SimpleDateFormat("dd/MM/yy").format(Calendar.getInstance().time)
                                 if (listData?.imageUri != "") {
                                     holder.lastMessage.text = "Photo"
-                                    holder.dateTime.text = listData?.messageTime
+
+                                    if (currentDate != listData?.messageDate) {
+                                        holder.dateTime.text = listData?.messageDate
+                                    } else {
+                                        holder.dateTime.text = listData?.messageTime
+                                    }
                                 } else if (listData.fileUrl != "") {
                                     holder.lastMessage.text = "File"
-                                    holder.dateTime.text = listData?.messageTime
+                                    if (currentDate != listData?.messageDate) {
+                                        holder.dateTime.text = listData?.messageDate
+                                    } else {
+                                        holder.dateTime.text = listData?.messageTime
+                                    }
                                 } else if (listData.message != "") {
                                     holder.lastMessage.text = listData?.message
-                                    holder.dateTime.text = listData?.messageTime
+                                    if (currentDate != listData?.messageDate) {
+                                        holder.dateTime.text = listData?.messageDate
+                                    } else {
+                                        holder.dateTime.text = listData?.messageTime
+                                    }
                                 }
                             }
                         }

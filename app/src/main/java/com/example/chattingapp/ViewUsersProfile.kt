@@ -26,8 +26,8 @@ class ViewUsersProfile(val displayAllUser: DisplayAllUser) : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.txtViewProfileName.text = displayAllUser.name
-        binding.txtViewProfileNumber.text = displayAllUser.number
+        /*binding.txtViewProfileName.text = displayAllUser.name
+        binding.txtViewProfileNumber.text = "+91 ${displayAllUser.number}"
 
         binding.toolbar.setNavigationOnClickListener {
             requireActivity().supportFragmentManager.beginTransaction().apply {
@@ -35,6 +35,7 @@ class ViewUsersProfile(val displayAllUser: DisplayAllUser) : Fragment() {
                 commit()
             }
         }
+
         val LocalFile = File.createTempFile("tempfile", "jpeg")
         FirebaseStorage.getInstance().getReference()
             .child("Users/Profile_Pictures/+91${displayAllUser.number}/${displayAllUser.userID}")
@@ -49,7 +50,6 @@ class ViewUsersProfile(val displayAllUser: DisplayAllUser) : Fragment() {
                 addToBackStack(this@ViewUsersProfile.toString())
                 commit()
             }
-        }
+        }*/
     }
-
 }

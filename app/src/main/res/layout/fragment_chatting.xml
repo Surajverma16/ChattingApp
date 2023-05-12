@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:id="@+id/root_layout"
     tools:context=".Chatting">
 
     <com.google.android.material.appbar.MaterialToolbar
@@ -69,7 +70,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="@dimen/_15sdp"
                 android:src="@drawable/baseline_videocam_24"
-                app:layout_constraintBottom_toBottomOf="@id/txtReceiverName"
+                app:layout_constraintBottom_toBottomOf="@id/txtReceiverOnlineStatus"
                 app:layout_constraintEnd_toStartOf="@id/imgVoiceCall"
                 app:layout_constraintTop_toTopOf="@id/txtReceiverName" />
 
@@ -79,7 +80,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="@dimen/_15sdp"
                 android:src="@drawable/baseline_local_phone_24"
-                app:layout_constraintBottom_toBottomOf="@id/txtReceiverName"
+                app:layout_constraintBottom_toBottomOf="@id/txtReceiverOnlineStatus"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="@id/txtReceiverName" />
 
@@ -125,28 +126,40 @@
                     android:layout_toStartOf="@id/imgAttach"
                     android:background="@null"
                     android:hint="Message"
+                    android:layout_toEndOf="@id/imgEmoji"
                     android:inputType="textImeMultiLine"
                     android:padding="@dimen/_10sdp" />
 
                 <ImageView
+                    android:id="@+id/imgEmoji"
+                    android:layout_width="@dimen/_20sdp"
+                    android:layout_height="@dimen/_20sdp"
+                    android:layout_alignParentStart="true"
+                    android:layout_marginTop="@dimen/_10sdp"
+                    android:layout_marginStart="@dimen/_9sdp"
+                    android:src="@drawable/ic_emoji"
+                    app:tint="@color/light_black" />
+
+                <ImageView
                     android:id="@+id/imgCamera"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="@dimen/_20sdp"
+                    android:layout_height="@dimen/_20sdp"
                     android:layout_alignParentEnd="true"
                     android:layout_marginTop="@dimen/_10sdp"
                     android:layout_marginEnd="@dimen/_10sdp"
                     android:src="@drawable/baseline_camera_alt_24"
-                    app:tint="@color/light_gray" />
+                    app:tint="@color/light_black" />
 
                 <ImageView
                     android:id="@+id/imgAttach"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="@dimen/_20sdp"
+                    android:layout_height="@dimen/_20sdp"
                     android:layout_marginTop="@dimen/_10sdp"
                     android:layout_marginEnd="@dimen/_5sdp"
+                    android:rotation="-130"
                     android:layout_toStartOf="@id/imgCamera"
                     android:src="@drawable/baseline_attachment_24"
-                    app:tint="@color/light_gray" />
+                    app:tint="@color/light_black" />
             </RelativeLayout>
 
             <com.google.android.material.floatingactionbutton.FloatingActionButton

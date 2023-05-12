@@ -23,7 +23,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/_10ssp"
         android:textColor="@color/black"
-        android:textSize="@dimen/_14ssp"
+        android:textSize="15sp"
         app:layout_constraintBottom_toTopOf="@id/txtLastMessage"
         app:layout_constraintStart_toEndOf="@id/imgProfilePic"
         app:layout_constraintTop_toTopOf="@id/imgProfilePic"
@@ -35,11 +35,13 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/_10ssp"
         android:maxLines="1"
-        android:textSize="@dimen/_10ssp"
+        android:maxWidth="@dimen/_220sdp"
+        android:textSize="@dimen/_9ssp"
+        android:ellipsize="end"
         app:layout_constraintBottom_toBottomOf="@id/imgProfilePic"
         app:layout_constraintStart_toEndOf="@id/imgProfilePic"
         app:layout_constraintTop_toBottomOf="@id/txtUserName"
-        tools:text="Last Message" />
+        tools:text="Last Message is the of the given below is the answer faf " />
 
     <TextView
         android:id="@+id/txtMessageTimeAndDate"
@@ -50,5 +52,23 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@id/txtUserName"
         tools:text="Time &amp; Date" />
+
+    <TextView
+        android:layout_width="@dimen/_13sdp"
+        android:layout_height="@dimen/_13sdp"
+        tools:text="1"
+        android:id="@+id/txtMessageCount"
+        android:textSize="@dimen/_9sdp"
+        app:layout_constraintTop_toBottomOf="@id/txtUserName"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:background="@drawable/circle"
+        android:backgroundTint="@color/green"
+        android:textAlignment="center"
+        android:paddingBottom="@dimen/_2sdp"
+        android:textStyle="bold"
+        android:visibility="gone"
+        android:textColor="@color/white"
+        app:layout_constraintBottom_toBottomOf="@id/txtLastMessage"
+        android:layout_marginEnd="@dimen/_5sdp"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -39,6 +39,10 @@ import com.google.firebase.database.*
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
+import com.vanniktech.emoji.EmojiButton
+import com.vanniktech.emoji.EmojiManager
+import com.vanniktech.emoji.EmojiPopup
+import com.vanniktech.emoji.google.GoogleEmojiProvider
 import org.json.JSONObject
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -54,6 +58,10 @@ class Chatting(private val displayAllUser: DisplayAllUser) : Fragment() {
     private var name = ""
     private var message = ""
     lateinit var chatAdapter: ChatAdapter
+    private var senderId = ""
+    private var receiverId = ""
+    private var messageArray = arrayListOf<DeleteMessageData>()
+    private var switchIcons = false
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -61,6 +69,7 @@ class Chatting(private val displayAllUser: DisplayAllUser) : Fragment() {
     ): View {
         // Inflate the layout for this fragment
         binding = FragmentChattingBinding.inflate(layoutInflater, container, false)
+        EmojiManager.install(GoogleEmojiProvider())
         return binding.root
     }
 
@@ -73,8 +82,8 @@ class Chatting(private val displayAllUser: DisplayAllUser) : Fragment() {
         receiverRoom = displayAllUser.userID
 
 
-        val senderId = FirebaseAuth.getInstance().currentUser?.uid
-        val receiverId = displayAllUser.userID
+         senderId = FirebaseAuth.getInstance().currentUser?.uid!!
+         receiverId = displayAllUser.userID
         senderRoom = senderId + receiverId
         receiverRoom = receiverId + senderId
 
@@ -108,12 +117,20 @@ class Chatting(private val displayAllUser: DisplayAllUser) : Fragment() {
                             if (listData!!.onlineStatus) {
                                 binding.txtReceiverOnlineStatus.visibility = View.VISIBLE
                                 binding.txtReceiverOnlineStatus.text = "Online"
-                            } else if (listData.lastSeen != "") {
-                                binding.txtReceiverOnlineStatus.visibility = View.VISIBLE
-                                binding.txtReceiverOnlineStatus.text =
-                                    "Last seen at ${listData.lastSeen}"
+                            } else if (listData.lastTime != "") {
+                                val currentDate =
+                                    SimpleDateFormat("dd/MM/yy").format(Calendar.getInstance().time)
+                                if (currentDate != listData.lastDate) {
+                                    binding.txtReceiverOnlineStatus.visibility = View.VISIBLE
+                                    binding.txtReceiverOnlineStatus.text =
+                                        "Last seen ${listData.lastDate} at ${listData.lastTime} "
+                                } else {
+                                    binding.txtReceiverOnlineStatus.visibility = View.VISIBLE
+                                    binding.txtReceiverOnlineStatus.text =
+                                        "Last seen today at ${listData.lastTime}"
+                                }
                             } else {
-                                binding.txtReceiverOnlineStatus.visibility = View.INVISIBLE
+                                binding.txtReceiverOnlineStatus.visibility = View.GONE
                             }
                         }
                     }
@@ -126,7 +143,7 @@ class Chatting(private val displayAllUser: DisplayAllUser) : Fragment() {
 
 
         binding.imgBackButton.setOnClickListener {
-            requireActivity().supportFragmentManager.popBackStackImmediate()
+            requireActivity().supportFragmentManager.popBackStack()
         }
 
         binding.imgVoiceCall.setOnClickListener {
@@ -144,6 +161,19 @@ class Chatting(private val displayAllUser: DisplayAllUser) : Fragment() {
                 Toast.LENGTH_SHORT
             ).show()
         }
+
+        val popup = EmojiPopup(binding.rootLayout,binding.editInputMsg)
+        binding.imgEmoji.setOnClickListener {
+                popup.toggle()
+            if(!switchIcons){
+                binding.imgEmoji.setImageResource(R.drawable.ic_keyboard)
+            }else{
+                binding.imgEmoji.setImageResource(R.drawable.ic_emoji)
+            }
+            switchIcons = !switchIcons
+        }
+
+
         val userId = FirebaseAuth.getInstance().currentUser?.uid
         FirebaseDatabase.getInstance().getReference("User/$userId").addValueEventListener(
             object : ValueEventListener {
@@ -175,7 +205,7 @@ class Chatting(private val displayAllUser: DisplayAllUser) : Fragment() {
                     }
                 }
             )
-        Log.d("Current Date", SimpleDateFormat("MM/dd/yyyy").format(Calendar.getInstance().time))
+        Log.d("Current Date", SimpleDateFormat("dd/MM/yy").format(Calendar.getInstance().time))
         Log.d("Current Time", SimpleDateFormat("hh:mm a").format(Calendar.getInstance().time))
 
 
@@ -186,10 +216,11 @@ class Chatting(private val displayAllUser: DisplayAllUser) : Fragment() {
                 userId!!,
                 binding.editInputMsg.text.trim().toString(),
                 SimpleDateFormat("hh:mm a").format(Calendar.getInstance().time).toLowerCase(),
-                SimpleDateFormat("MM/dd/yyyy").format(Calendar.getInstance().time),
+                SimpleDateFormat("dd/MM/yy").format(Calendar.getInstance().time),
                 "",
                 "",
-                ""
+                "",
+                false
             )
 
             Log.d("msg", msg.toString())
@@ -213,7 +244,7 @@ class Chatting(private val displayAllUser: DisplayAllUser) : Fragment() {
         val linearLayoutManager = LinearLayoutManager(requireContext())
         linearLayoutManager.stackFromEnd = true
 
-        val messageArray = arrayListOf<DeleteMessageData>()
+         messageArray = arrayListOf<DeleteMessageData>()
         chatAdapter =
             ChatAdapter(messageArray, requireContext(), object : ChatAdapter.onClickMessage {
                 override fun onDelete(
@@ -291,6 +322,8 @@ class Chatting(private val displayAllUser: DisplayAllUser) : Fragment() {
                     startActivity(intent)
                 }
             })
+        Log.d("ReceiverId :", receiverId)
+        Log.d("SenderID ", senderId!!)
         FirebaseDatabase.getInstance().getReference("ChatRoom/$senderRoom/Message")
             .addValueEventListener(
                 object : ValueEventListener {
@@ -302,11 +335,28 @@ class Chatting(private val displayAllUser: DisplayAllUser) : Fragment() {
                                 getMessage?.key = i.key.toString()
                                 messageArray.add(getMessage!!)
                                 message = getMessage.message
+
+                                if (getMessage.senderId == receiverId) {
+                                    val messageRemark =
+                                        HashMap<String, Any>()
+                                    messageRemark.put("messageRemark", true)
+                                    FirebaseDatabase.getInstance()
+                                        .getReference("ChatRoom/$senderRoom/Message/${getMessage.key}")
+                                        .updateChildren(messageRemark)
+                                        .addOnSuccessListener {
+                                            FirebaseDatabase.getInstance()
+                                                .getReference("ChatRoom/$receiverRoom/Message/${getMessage.key}")
+                                                .updateChildren(
+                                                    messageRemark
+                                                )
+                                        }
+
+                                }
+                                val recyclerView = binding.recyclerViewChatting
+                                val position = recyclerView.adapter?.itemCount
+                                binding.recyclerViewChatting.smoothScrollToPosition(position!!)
+                                chatAdapter.notifyDataSetChanged()
                             }
-                            val recyclerView = binding.recyclerViewChatting
-                            val position = recyclerView.adapter?.itemCount
-                            binding.recyclerViewChatting.smoothScrollToPosition(position!!)
-                            chatAdapter.notifyDataSetChanged()
                         } else {
                             chatAdapter.notifyDataSetChanged()
                         }
@@ -318,8 +368,13 @@ class Chatting(private val displayAllUser: DisplayAllUser) : Fragment() {
                 }
             )
 
+
+
+
+
         binding.recyclerViewChatting.layoutManager = linearLayoutManager
         binding.recyclerViewChatting.adapter = chatAdapter
+
 
         binding.imgCamera.setOnClickListener {
             val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
@@ -377,10 +432,11 @@ class Chatting(private val displayAllUser: DisplayAllUser) : Fragment() {
                         "",
                         SimpleDateFormat("hh:mm a").format(Calendar.getInstance().time)
                             .toLowerCase(),
-                        SimpleDateFormat("MM/dd/yyyy").format(Calendar.getInstance().time),
+                        SimpleDateFormat("dd/MM/yy").format(Calendar.getInstance().time),
                         "",
                         url.toString(),
-                        fileName
+                        fileName,
+                        false
                     )
                     Toast.makeText(requireContext(), "File Uploaded", Toast.LENGTH_SHORT).show()
 
@@ -441,10 +497,11 @@ class Chatting(private val displayAllUser: DisplayAllUser) : Fragment() {
                         "",
                         SimpleDateFormat("hh:mm a").format(Calendar.getInstance().time)
                             .toLowerCase(),
-                        SimpleDateFormat("MM/dd/yyyy").format(Calendar.getInstance().time),
+                        SimpleDateFormat("dd/MM/yy").format(Calendar.getInstance().time),
                         pushId!!,
                         "",
-                        ""
+                        "",
+                        false
                     )
 
                     Log.d("msg", msg.toString())
@@ -490,10 +547,11 @@ class Chatting(private val displayAllUser: DisplayAllUser) : Fragment() {
                         "",
                         SimpleDateFormat("hh:mm a").format(Calendar.getInstance().time)
                             .toLowerCase(),
-                        SimpleDateFormat("MM/dd/yyyy").format(Calendar.getInstance().time),
+                        SimpleDateFormat("dd/MM/yy").format(Calendar.getInstance().time),
                         pushId!!,
                         "",
-                        ""
+                        "",
+                        false
                     )
 
                     Log.d("msg", msg.toString())
@@ -582,6 +640,18 @@ class Chatting(private val displayAllUser: DisplayAllUser) : Fragment() {
             }
         }
         requestQueue.add(jsonObjectRequest)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.d("Chat destroy", "Destroyed")
+        val userId = FirebaseAuth.getInstance().currentUser?.uid
+        FirebaseDatabase.getInstance().getReference("ChatRoom/$senderRoom/InChat").child(userId!!)
+            .setValue("NotInChat").addOnSuccessListener {
+                FirebaseDatabase.getInstance().getReference("ChatRoom/$receiverRoom/InChat")
+                    .child(userId!!).setValue("NotInChat")
+            }
+        receiverId = ""
     }
 
 }

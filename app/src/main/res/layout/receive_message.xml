@@ -69,7 +69,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="@dimen/_2ssp"
-            android:textSize="@dimen/_10ssp"
+            android:textSize="@dimen/_8ssp"
             app:layout_constraintStart_toEndOf="@id/txtReceiveMessgae"
             app:layout_constraintBottom_toBottomOf="@id/txtReceiveMessgae"
             app:layout_constraintEnd_toEndOf="parent"

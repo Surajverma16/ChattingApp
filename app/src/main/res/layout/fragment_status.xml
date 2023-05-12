@@ -6,58 +6,108 @@
     android:layout_height="match_parent"
     tools:context=".Status">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/myStatusLayout"
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/myStatusLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="@dimen/_10sdp"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <FrameLayout
+                    android:id="@+id/imgProfileLayout"
+                    android:layout_width="50sp"
+                    android:layout_height="50sp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <de.hdodenhof.circleimageview.CircleImageView
+                        android:id="@+id/imgUserImage"
+                        android:layout_width="50sp"
+                        android:layout_height="50sp"
+                        android:src="@drawable/user" />
+
+                    <ImageView
+                        android:layout_width="@dimen/_15sdp"
+                        android:layout_height="@dimen/_15sdp"
+                        android:layout_gravity="end|bottom"
+                        android:background="@drawable/circle_send"
+                        android:src="@drawable/baseline_add_24" />
+
+                </FrameLayout>
+
+                <TextView
+                    android:id="@+id/txtStatusTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/_10ssp"
+                    android:layout_marginTop="@dimen/_5sdp"
+                    android:text="My Status"
+                    android:textColor="@color/black"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    app:layout_constraintStart_toEndOf="@id/imgProfileLayout"
+                    app:layout_constraintTop_toTopOf="@id/imgProfileLayout" />
+
+                <TextView
+                    android:id="@+id/txtStatusAdd"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/_10sdp"
+                    android:text="Tap to add status update"
+                    android:textSize="12sp"
+                    app:layout_constraintStart_toEndOf="@id/imgProfileLayout"
+                    app:layout_constraintTop_toBottomOf="@id/txtStatusTitle" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <TextView
+                android:id="@+id/txtRecentStatus"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/_10sdp"
+                android:text="Recent Status"
+                app:layout_constraintTop_toBottomOf="@id/myStatusLayout" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerViewStatus"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:overScrollMode="never"
+                tools:listitem="@layout/list_status"
+                app:layout_constraintTop_toBottomOf="@id/txtRecentStatus" />
+
+            <TextView
+                android:id="@+id/txtNoStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/_15ssp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="Status" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/btnAddStatus"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:padding="@dimen/_10sdp"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <de.hdodenhof.circleimageview.CircleImageView
-            android:id="@+id/imgUserImage"
-            android:layout_width="50sp"
-            android:layout_height="50sp"
-            android:src="@drawable/user"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <TextView
-            android:id="@+id/txtStatusTitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/_10ssp"
-            android:layout_marginTop="@dimen/_5sdp"
-            android:text="My Status"
-            android:textColor="@color/black"
-            android:textSize="15sp"
-            android:textStyle="bold"
-            app:layout_constraintStart_toEndOf="@id/imgUserImage"
-            app:layout_constraintTop_toTopOf="@id/imgUserImage" />
-
-        <TextView
-            android:id="@+id/txtStatusAdd"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/_10sdp"
-            android:text="Tap to add status update"
-            android:textSize="12sp"
-            app:layout_constraintStart_toEndOf="@id/imgUserImage"
-            app:layout_constraintTop_toBottomOf="@id/txtStatusTitle" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <TextView
-        android:id="@+id/txtRecentStatus"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/_10sdp"
-        android:text="Recent Status"
-        app:layout_constraintTop_toBottomOf="@id/myStatusLayout" />
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerViewStatus"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/txtRecentStatus" />
+        android:layout_margin="@dimen/_20sdp"
+        android:src="@drawable/baseline_camera_alt_24"
+        app:backgroundTint="@color/dark_green"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:tint="@color/white" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

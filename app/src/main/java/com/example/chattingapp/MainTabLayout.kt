@@ -33,10 +33,12 @@ class MainTabLayout : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.mainViewPager.adapter = HomeViewPager(childFragmentManager, 3)
-        binding.mainViewPager.offscreenPageLimit = 3
-        binding.mainTabLayout.setScrollPosition(0, 0f, true)
-        binding.mainViewPager.currentItem = 0
+        val adapter = HomeViewPager(childFragmentManager)
+        adapter.addFragment(HomePage(), "Chats")
+        adapter.addFragment(Status(),"Status")
+        adapter.addFragment(CallHistory(), "Calls")
+
+        binding.mainViewPager.adapter = adapter
         binding.mainTabLayout.setupWithViewPager(binding.mainViewPager)
 
         binding.toolbar.setOnMenuItemClickListener {
@@ -57,11 +59,15 @@ class MainTabLayout : Fragment() {
 
                     val lastSeen = HashMap<String, Any>()
                     lastSeen.put(
-                        "lastSeen",
+                        "lastTime",
                         SimpleDateFormat("hh:mm a").format(Calendar.getInstance().time)
                     )
-                    FirebaseDatabase.getInstance().getReference("User/$userId")
-                        .updateChildren(lastSeen)
+                    FirebaseDatabase.getInstance().getReference("User/$userId").updateChildren(lastSeen)
+
+                    val lastDate = HashMap<String, Any>()
+                    lastDate.put("lastDate",SimpleDateFormat("dd/MM/yy").format(Calendar.getInstance().time))
+                    FirebaseDatabase.getInstance().getReference("User/$userId").updateChildren(lastDate)
+
                     FirebaseAuth.getInstance().signOut()
                     requireActivity().supportFragmentManager.beginTransaction().apply {
                         replace(R.id.fragment_container, SignInPage())

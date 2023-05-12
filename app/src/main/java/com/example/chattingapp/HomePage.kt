@@ -48,15 +48,9 @@ class HomePage : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         auth = Firebase.auth
         database = Firebase.database.reference
-
-        val number = FirebaseAuth.getInstance().currentUser?.phoneNumber
         val userId = FirebaseAuth.getInstance().currentUser?.uid
-        val LocalFile = File.createTempFile("tempfile", "jpeg")
-        FirebaseStorage.getInstance()
-            .getReference("Users/Profile_Pictures/+91$number}/$userId}")
-            .getFile(LocalFile).addOnSuccessListener {
-                val bitmap = BitmapFactory.decodeFile(LocalFile.absolutePath)
-            }
+
+        Toast.makeText(requireContext(), "Home", Toast.LENGTH_SHORT).show()
 
         database.child("User/$userId/personalChat")
             .addValueEventListener(object : ValueEventListener {
@@ -89,6 +83,10 @@ class HomePage : Fragment() {
                                                 addToBackStack("MainTabLayout")
                                                 commit()
                                             }
+
+                                        FirebaseDatabase.getInstance().getReference("ChatRoom/${userId + displayAllUser.userID}/InChat").child(userId!!).setValue("InChat").addOnSuccessListener {
+                                            FirebaseDatabase.getInstance().getReference("ChatRoom/${displayAllUser.userID + userId  }/InChat").child(userId!!).setValue("InChat")
+                                        }
                                     }
 
                                     override fun openImage(displayAllUser: DisplayAllUser) {
@@ -195,58 +193,52 @@ class HomePage : Fragment() {
                                 for (i in snapshot.children) {
                                     searchUser = arrayListOf()
                                     val listData = i.getValue(DisplayAllUser::class.java)
-                                    if (listData?.number.equals(userNumber)) {
-                                        var isAddUser = true
-                                        for (i in listUser) {
-                                            if (i.number.equals(userNumber)) {
+                                        if (listData?.number.equals(userNumber)) {
+                                            var isAddUser = true
+                                            for (i in listUser) {
+                                                if (i.number.equals(userNumber)) {
+                                                    isAddUser = false
+                                                }
+                                            }
+
+                                            if ("+91${listData?.number}" == FirebaseAuth.getInstance().currentUser?.phoneNumber){
+                                                Toast.makeText(requireContext(), "Cant add yourself", Toast.LENGTH_SHORT).show()
                                                 isAddUser = false
                                             }
-                                            val currentUserNumber =
-                                                FirebaseAuth.getInstance().currentUser?.phoneNumber
-                                            currentUserNumber?.replace("+91", null.toString())
-                                            if (i.number.equals(currentUserNumber)) {
+                                            if (isAddUser) {
+                                                searchUser.add(listData!!)
+                                                recyclerViewAddUserList.layoutManager =
+                                                    LinearLayoutManager(
+                                                        requireContext(),
+                                                        LinearLayoutManager.VERTICAL,
+                                                        false
+                                                    )
+                                                recyclerViewAddUserList.adapter = SearchUserAdapter(
+                                                    searchUser,
+                                                    object : SearchUserAdapter.addUser {
+                                                        override fun onUserAdd(displayAllUser: DisplayAllUser) {
+                                                            val userID =
+                                                                FirebaseAuth.getInstance().currentUser?.uid
+                                                            val sendUserData = SendAllUserData(
+                                                                displayAllUser.userID,
+                                                                displayAllUser.name,
+                                                                displayAllUser.number,
+                                                                displayAllUser.profileImgName
+                                                            )
+                                                            database.child("User/$userID/personalChat")
+                                                                .push().setValue(sendUserData)
+                                                            alertDialog.dismiss()
+                                                        }
+                                                    })
+                                            } else {
                                                 Toast.makeText(
                                                     requireContext(),
-                                                    "Can't Add yourself",
+                                                    "already Added",
                                                     Toast.LENGTH_SHORT
                                                 ).show()
-                                                isAddUser = false
                                             }
-                                        }
-                                        if (isAddUser) {
-                                            searchUser.add(listData!!)
-                                            recyclerViewAddUserList.layoutManager =
-                                                LinearLayoutManager(
-                                                    requireContext(),
-                                                    LinearLayoutManager.VERTICAL,
-                                                    false
-                                                )
-                                            recyclerViewAddUserList.adapter = SearchUserAdapter(
-                                                searchUser,
-                                                object : SearchUserAdapter.addUser {
-                                                    override fun onUserAdd(displayAllUser: DisplayAllUser) {
-                                                        val userID =
-                                                            FirebaseAuth.getInstance().currentUser?.uid
-                                                        val sendUserData = SendAllUserData(
-                                                            displayAllUser.userID,
-                                                            displayAllUser.name,
-                                                            displayAllUser.number,
-                                                            displayAllUser.profileImgName
-                                                        )
-                                                        database.child("User/$userID/personalChat")
-                                                            .push().setValue(sendUserData)
-                                                        alertDialog.dismiss()
-                                                    }
-                                                })
-                                        } else {
-                                            Toast.makeText(
-                                                requireContext(),
-                                                "already Added",
-                                                Toast.LENGTH_SHORT
-                                            ).show()
-                                        }
-                                    }
-                                }
+                                  }
+                             }
                         }
 
                         override fun onCancelled(error: DatabaseError) {
