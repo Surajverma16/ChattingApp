@@ -48,7 +48,8 @@ class ChatAdapter(
 
     class ReceiverViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val message = view.findViewById<TextView>(R.id.txtReceiveMessgae)
-        val time = view.findViewById<TextView>(R.id.txtReceiveTime)
+        val MediaTime = view.findViewById<TextView>(R.id.txtReceiveTimeMedia)
+        val msgTime = view.findViewById<TextView>(R.id.txtReceiveTimeMsg)
         val image = view.findViewById<ImageView>(R.id.imgReceiveImage)
         val fileImage = view.findViewById<ImageView>(R.id.imgFileImage)
         val fileName = view.findViewById<TextView>(R.id.txtFileName)
@@ -152,7 +153,9 @@ class ChatAdapter(
                 viewHolder.image.visibility = View.GONE
                 viewHolder.message.visibility = View.VISIBLE
                 viewHolder.message.text = chatList[position].message
-                viewHolder.time.text = chatList[position].messageTime
+                viewHolder.MediaTime.visibility = View.GONE
+                viewHolder.msgTime.visibility = View.VISIBLE
+                viewHolder.msgTime.text = chatList[position].messageTime
 
             } else if (chatList[position].imageUri != "") {
 
@@ -172,7 +175,9 @@ class ChatAdapter(
                     }
 
                 })
-                viewHolder.time.text = chatList[position].messageTime
+                viewHolder.msgTime.visibility =View.GONE
+                viewHolder.MediaTime.visibility = View.VISIBLE
+                viewHolder.MediaTime.text = chatList[position].messageTime
 
             } else if (chatList[position].fileUrl != "") {
 
@@ -186,7 +191,9 @@ class ChatAdapter(
                 viewHolder.fileImage.setOnClickListener {
                     clicked.viewPdf(chatList[position])
                 }
-                viewHolder.time.text = chatList[position].messageTime
+                viewHolder.msgTime.visibility =View.GONE
+                viewHolder.MediaTime.visibility = View.VISIBLE
+                viewHolder.MediaTime.text = chatList[position].messageTime
             }
         }
     }

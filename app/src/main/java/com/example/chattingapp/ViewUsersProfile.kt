@@ -26,7 +26,7 @@ class ViewUsersProfile(val displayAllUser: DisplayAllUser) : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        /*binding.txtViewProfileName.text = displayAllUser.name
+        binding.txtViewProfileName.text = displayAllUser.name
         binding.txtViewProfileNumber.text = "+91 ${displayAllUser.number}"
 
         binding.toolbar.setNavigationOnClickListener {
@@ -50,6 +50,6 @@ class ViewUsersProfile(val displayAllUser: DisplayAllUser) : Fragment() {
                 addToBackStack(this@ViewUsersProfile.toString())
                 commit()
             }
-        }*/
+        }
     }
 }

@@ -28,7 +28,6 @@ class CallHistory : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        Toast.makeText(requireContext(), "Call", Toast.LENGTH_SHORT).show()
 
     }
 }

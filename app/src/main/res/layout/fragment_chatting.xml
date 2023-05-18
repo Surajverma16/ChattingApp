@@ -79,7 +79,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="@dimen/_15sdp"
-                android:src="@drawable/baseline_local_phone_24"
+                android:src="@drawable/baseline_phone_24"
+                app:tint="@color/white"
                 app:layout_constraintBottom_toBottomOf="@id/txtReceiverOnlineStatus"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="@id/txtReceiverName" />

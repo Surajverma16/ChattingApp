@@ -126,7 +126,12 @@ class ProfilePage : Fragment() {
         val userID = FirebaseAuth.getInstance().currentUser?.uid
         FirebaseDatabase.getInstance().getReference().child("AllUser")
             .child(key!!).child("name")
-            .setValue(binding.edtUserName.text.toString())
+            .setValue(binding.edtUserName.text.toString()).addOnSuccessListener {
+
+                FirebaseDatabase.getInstance().getReference().child("User")
+                    .child(userID!!).child("name")
+                    .setValue(binding.edtUserName.text.toString())
+            }
         val user = FirebaseAuth.getInstance().currentUser?.phoneNumber
         storage.child("Users/Profile_Pictures/$user/$userID")
             .putFile(imageUri!!)

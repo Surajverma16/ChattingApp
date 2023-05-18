@@ -32,12 +32,12 @@
 
         <ImageView
             android:id="@+id/imgReceiveImage"
-            android:layout_width="@dimen/_200sdp"
+            android:layout_width="wrap_content"
             android:layout_height="@dimen/_200sdp"
             android:layout_marginStart="@dimen/_6sdp"
             android:padding="@dimen/_6sdp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintBottom_toTopOf="@id/txtReceiveTime"
+            app:layout_constraintBottom_toTopOf="@id/txtReceiveTimeMedia"
             app:layout_constraintStart_toStartOf="parent" />
 
         <ImageView
@@ -58,6 +58,7 @@
             android:layout_marginEnd="@dimen/_10sdp"
             android:paddingEnd="@dimen/_10sdp"
             android:maxWidth="@dimen/_150sdp"
+            app:layout_constraintBottom_toTopOf="@id/txtReceiveTimeMedia"
             app:layout_constraintStart_toEndOf="@id/imgFileImage"
             tools:text="FileName"
             android:textSize="17sp"
@@ -65,7 +66,17 @@
             app:layout_constraintBottom_toBottomOf="@id/imgFileImage"/>
 
         <TextView
-            android:id="@+id/txtReceiveTime"
+            android:id="@+id/txtReceiveTimeMedia"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/_2ssp"
+            android:textSize="@dimen/_8ssp"
+            app:layout_constraintBottom_toBottomOf="@id/txtReceiveMessgae"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:text="10:10" />
+
+        <TextView
+            android:id="@+id/txtReceiveTimeMsg"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="@dimen/_2ssp"

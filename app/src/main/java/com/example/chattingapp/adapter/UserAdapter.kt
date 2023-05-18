@@ -55,7 +55,7 @@ class UserAdapter(val user: ArrayList<DisplayAllUser>, private val clickedChat: 
 
         val userId = FirebaseAuth.getInstance().currentUser?.uid
         FirebaseDatabase.getInstance()
-            .getReference("ChatRoom/${user[position].userID + userId}/Message")
+            .getReference("ChatRoom/${userId+user[position].userID}/Message")
             .addValueEventListener(
                 object : ValueEventListener {
                     override fun onDataChange(snapshot: DataSnapshot) {
@@ -115,10 +115,15 @@ class UserAdapter(val user: ArrayList<DisplayAllUser>, private val clickedChat: 
         holder.itemView.setOnClickListener {
             clickedChat.getChat(user[position])
         }
+        holder.itemView.setOnLongClickListener {
+            clickedChat.optionsChat(user[position])
+            true
+        }
     }
 
     interface onChatClicked {
         fun getChat(displayAllUser: DisplayAllUser)
         fun openImage(displayAllUser: DisplayAllUser)
+        fun optionsChat(displayAllUser: DisplayAllUser)
     }
 }

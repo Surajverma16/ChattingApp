@@ -14,9 +14,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.chattingapp.adapter.SearchUserAdapter
 import com.example.chattingapp.adapter.UserAdapter
-import com.example.chattingapp.authorization.SignInPage
 import com.example.chattingapp.databinding.FragmentHomePageBinding
 import com.example.chattingapp.model.DisplayAllUser
+import com.example.chattingapp.model.DisplayUserData
 import com.example.chattingapp.model.SendAllUserData
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
@@ -34,6 +34,7 @@ class HomePage : Fragment() {
     lateinit var database: DatabaseReference
     private var listUser = arrayListOf<DisplayAllUser>()
     private var searchUser = arrayListOf<DisplayAllUser>()
+    private var userData = DisplayUserData()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -49,8 +50,6 @@ class HomePage : Fragment() {
         auth = Firebase.auth
         database = Firebase.database.reference
         val userId = FirebaseAuth.getInstance().currentUser?.uid
-
-        Toast.makeText(requireContext(), "Home", Toast.LENGTH_SHORT).show()
 
         database.child("User/$userId/personalChat")
             .addValueEventListener(object : ValueEventListener {
@@ -74,6 +73,7 @@ class HomePage : Fragment() {
                             binding.recyclerViewUserList.adapter =
                                 UserAdapter(listUser, object : UserAdapter.onChatClicked {
                                     override fun getChat(displayAllUser: DisplayAllUser) {
+
                                         requireActivity().supportFragmentManager.beginTransaction()
                                             .apply {
                                                 replace(
@@ -83,10 +83,6 @@ class HomePage : Fragment() {
                                                 addToBackStack("MainTabLayout")
                                                 commit()
                                             }
-
-                                        FirebaseDatabase.getInstance().getReference("ChatRoom/${userId + displayAllUser.userID}/InChat").child(userId!!).setValue("InChat").addOnSuccessListener {
-                                            FirebaseDatabase.getInstance().getReference("ChatRoom/${displayAllUser.userID + userId  }/InChat").child(userId!!).setValue("InChat")
-                                        }
                                     }
 
                                     override fun openImage(displayAllUser: DisplayAllUser) {
@@ -151,6 +147,45 @@ class HomePage : Fragment() {
                                                 }
                                             }
                                     }
+
+                                    override fun optionsChat(displayAllUser: DisplayAllUser) {
+                                        val dialog = AlertDialog.Builder(requireContext())
+                                        dialog.setMessage("messages and media will also be deleted permanently ")
+                                        dialog.setTitle(" Are you sure to Delete user?")
+                                        dialog.setPositiveButton("Delete", { dialog, id ->
+                                            FirebaseDatabase.getInstance()
+                                                .getReference("User/$userId/personalChat")
+                                                .addValueEventListener(object : ValueEventListener {
+                                                    override fun onDataChange(snapshot: DataSnapshot) {
+                                                        if (snapshot.exists()) {
+                                                            for (i in snapshot.children) {
+                                                                val listUserChatData =
+                                                                    i.getValue(DisplayAllUser::class.java)
+                                                                listUserChatData?.key =
+                                                                    i.key.toString()
+                                                                if (listUserChatData?.userID == displayAllUser.userID) {
+                                                                    FirebaseDatabase.getInstance()
+                                                                        .getReference("User/$userId/personalChat/${listUserChatData.key}")
+                                                                        .removeValue().addOnSuccessListener {
+                                                                            FirebaseDatabase.getInstance().getReference("ChatRoom/${userId+displayAllUser.userID}/Message").removeValue()
+                                                                        }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+
+                                                    override fun onCancelled(error: DatabaseError) {
+                                                        TODO("Not yet implemented")
+                                                    }
+                                                })
+                                            dialog.dismiss()
+                                        })
+
+                                        dialog.setNegativeButton("Cancel ", { dialog, id ->
+                                            dialog.dismiss()
+                                        })
+                                        dialog.show()
+                                    }
                                 })
                         }
                     } else {
@@ -191,54 +226,59 @@ class HomePage : Fragment() {
                         override fun onDataChange(snapshot: DataSnapshot) {
                             if (snapshot.exists())
                                 for (i in snapshot.children) {
-                                    searchUser = arrayListOf()
                                     val listData = i.getValue(DisplayAllUser::class.java)
-                                        if (listData?.number.equals(userNumber)) {
-                                            var isAddUser = true
-                                            for (i in listUser) {
-                                                if (i.number.equals(userNumber)) {
-                                                    isAddUser = false
-                                                }
-                                            }
+                                    searchUser = arrayListOf()
 
-                                            if ("+91${listData?.number}" == FirebaseAuth.getInstance().currentUser?.phoneNumber){
-                                                Toast.makeText(requireContext(), "Cant add yourself", Toast.LENGTH_SHORT).show()
+                                    if (listData?.number.equals(userNumber)) {
+                                        var isAddUser = true
+                                        for (i in listUser) {
+                                            if (i.number.equals(userNumber)) {
                                                 isAddUser = false
                                             }
-                                            if (isAddUser) {
-                                                searchUser.add(listData!!)
-                                                recyclerViewAddUserList.layoutManager =
-                                                    LinearLayoutManager(
-                                                        requireContext(),
-                                                        LinearLayoutManager.VERTICAL,
-                                                        false
-                                                    )
-                                                recyclerViewAddUserList.adapter = SearchUserAdapter(
-                                                    searchUser,
-                                                    object : SearchUserAdapter.addUser {
-                                                        override fun onUserAdd(displayAllUser: DisplayAllUser) {
-                                                            val userID =
-                                                                FirebaseAuth.getInstance().currentUser?.uid
-                                                            val sendUserData = SendAllUserData(
-                                                                displayAllUser.userID,
-                                                                displayAllUser.name,
-                                                                displayAllUser.number,
-                                                                displayAllUser.profileImgName
-                                                            )
-                                                            database.child("User/$userID/personalChat")
-                                                                .push().setValue(sendUserData)
-                                                            alertDialog.dismiss()
-                                                        }
-                                                    })
-                                            } else {
-                                                Toast.makeText(
+                                        }
+
+                                        if ("+91${listData?.number}" == FirebaseAuth.getInstance().currentUser?.phoneNumber) {
+                                            Toast.makeText(
+                                                requireContext(),
+                                                "Cant add yourself",
+                                                Toast.LENGTH_SHORT
+                                            ).show()
+                                            isAddUser = false
+                                        }
+                                        if (isAddUser) {
+                                            searchUser.add(listData!!)
+                                            recyclerViewAddUserList.layoutManager =
+                                                LinearLayoutManager(
                                                     requireContext(),
-                                                    "already Added",
-                                                    Toast.LENGTH_SHORT
-                                                ).show()
-                                            }
-                                  }
-                             }
+                                                    LinearLayoutManager.VERTICAL,
+                                                    false
+                                                )
+                                            recyclerViewAddUserList.adapter = SearchUserAdapter(
+                                                searchUser,
+                                                object : SearchUserAdapter.addUser {
+                                                    override fun onUserAdd(displayAllUser: DisplayAllUser) {
+                                                        val userID =
+                                                            FirebaseAuth.getInstance().currentUser?.uid
+                                                        val sendUserData = SendAllUserData(
+                                                            displayAllUser.userID,
+                                                            displayAllUser.name,
+                                                            displayAllUser.number,
+                                                            displayAllUser.profileImgName
+                                                        )
+                                                        database.child("User/$userID/personalChat")
+                                                            .push().setValue(sendUserData)
+                                                        alertDialog.dismiss()
+                                                    }
+                                                })
+                                        } else {
+                                            Toast.makeText(
+                                                requireContext(),
+                                                "already Added",
+                                                Toast.LENGTH_SHORT
+                                            ).show()
+                                        }
+                                    }
+                                }
                         }
 
                         override fun onCancelled(error: DatabaseError) {
@@ -258,7 +298,19 @@ class HomePage : Fragment() {
                 }
             }
         }
+
+
     }
 
 
 }
+
+
+// You can also use GroupVideo/GroupVoice/OneOnOneVoice to make more types of calls.
+/* val config = ZegoUIKitPrebuiltCallConfig.oneOnOneVideoCall()
+ val fragment = ZegoUIKitPrebuiltCallFragment.newInstance(
+     appID, appSign,callId, userID, userName, config
+ )
+ requireActivity().supportFragmentManager.beginTransaction()
+     .replace(R.id.fragment_container, fragment)
+     .commitNow()*/

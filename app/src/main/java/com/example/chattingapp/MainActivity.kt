@@ -3,18 +3,26 @@ package com.example.chattingapp
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.fragment.app.Fragment
 import com.example.chattingapp.authorization.SignInPage
 import com.example.chattingapp.databinding.ActivityMainBinding
+import com.example.chattingapp.model.DisplayUserData
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
+import com.zegocloud.uikit.prebuilt.call.config.ZegoNotificationConfig
+import com.zegocloud.uikit.prebuilt.call.invite.ZegoUIKitPrebuiltCallInvitationConfig
+import com.zegocloud.uikit.prebuilt.call.invite.ZegoUIKitPrebuiltCallInvitationService
 import java.text.SimpleDateFormat
 import java.util.*
-
 
 class MainActivity : AppCompatActivity() {
     lateinit var binding: ActivityMainBinding
     private var onlineStatus: Boolean = false
+    private var userData = DisplayUserData()
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -24,6 +32,23 @@ class MainActivity : AppCompatActivity() {
             replace(R.id.fragment_container, SignInPage())
             commit()
         }
+
+        val userId = FirebaseAuth.getInstance().currentUser?.uid
+        FirebaseDatabase.getInstance().getReference("User/$userId").addValueEventListener(object :
+            ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if (snapshot.exists()) {
+                    val listingData = snapshot.getValue(DisplayUserData::class.java)
+                    listingData?.key = snapshot.key.toString()
+                    userData = listingData!!
+                    addCallFragment()
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                TODO("Not yet implemented")
+            }
+        })
     }
 
     override fun onStart() {
@@ -64,12 +89,43 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+
+    private fun addCallFragment() {
+
+
+        val application = application
+        val appID: Long = 461464117
+        val appSign: String = "7e7809db75558a171a9933906fd32659591619964dccee720bde932ca4e93e7c"
+        val userID: String = userData.key
+        val userName: String = userData.name
+
+        val callInvitationConfig = ZegoUIKitPrebuiltCallInvitationConfig()/*
+        callInvitationConfig.notifyWhenAppRunningInBackgroundOrQuit = true
+        val notificationConfig = ZegoNotificationConfig()
+        notificationConfig.sound = "zego_uikit_sound_call"
+        notificationConfig.channelID = "CallInvitation"
+        notificationConfig.channelName = "CallInvitation"*/
+        ZegoUIKitPrebuiltCallInvitationService.init(
+            application,
+            appID,
+            appSign,
+            userID,
+            userName,
+            callInvitationConfig
+        )
+    }
+
     override fun onBackPressed() {
         val currentFragment = supportFragmentManager.findFragmentById(R.id.fragment_container)
-        if(currentFragment is MainTabLayout){
+        if (currentFragment is MainTabLayout) {
             finish()
-        }else{
+        } else {
             supportFragmentManager.popBackStack()
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        ZegoUIKitPrebuiltCallInvitationService.unInit()
     }
 }

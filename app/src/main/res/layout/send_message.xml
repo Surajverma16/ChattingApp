@@ -31,13 +31,13 @@
 
         <ImageView
             android:id="@+id/imgSendImage"
-            android:layout_width="@dimen/_200sdp"
+            android:layout_width="wrap_content"
             android:layout_height="@dimen/_200sdp"
             android:layout_marginEnd="@dimen/_10sdp"
-            android:paddingTop="@dimen/_5sdp"
+            android:maxWidth="@dimen/_200sdp"
+            android:padding="@dimen/_5sdp"
             android:paddingBottom="@dimen/_15sdp"
-            android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/txtSendTime"
             app:layout_constraintEnd_toEndOf="parent" />
 
         <ImageView

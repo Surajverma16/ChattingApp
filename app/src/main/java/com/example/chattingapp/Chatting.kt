@@ -3,9 +3,11 @@ package com.example.chattingapp
 import android.annotation.SuppressLint
 import android.app.Activity.RESULT_OK
 import android.app.AlertDialog
+import android.app.Dialog
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.icu.lang.UCharacter.GraphemeClusterBreak.V
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -18,12 +20,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.android.volley.Response
 import com.android.volley.VolleyError
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
@@ -39,15 +43,18 @@ import com.google.firebase.database.*
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
-import com.vanniktech.emoji.EmojiButton
 import com.vanniktech.emoji.EmojiManager
 import com.vanniktech.emoji.EmojiPopup
 import com.vanniktech.emoji.google.GoogleEmojiProvider
+import com.zegocloud.uikit.prebuilt.call.invite.widget.ZegoSendCallInvitationButton
+import com.zegocloud.uikit.service.defines.ZegoUIKitUser
+import im.zego.zegoexpress.utils.ZegoLogUtil.getFileName
 import org.json.JSONObject
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.collections.ArrayList
 
 class Chatting(private val displayAllUser: DisplayAllUser) : Fragment() {
     private lateinit var binding: FragmentChattingBinding
@@ -73,7 +80,8 @@ class Chatting(private val displayAllUser: DisplayAllUser) : Fragment() {
         return binding.root
     }
 
-    @SuppressLint("QueryPermissionsNeeded")
+
+    @SuppressLint("QueryPermissionsNeeded", "InflateParams")
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -82,8 +90,8 @@ class Chatting(private val displayAllUser: DisplayAllUser) : Fragment() {
         receiverRoom = displayAllUser.userID
 
 
-         senderId = FirebaseAuth.getInstance().currentUser?.uid!!
-         receiverId = displayAllUser.userID
+        senderId = FirebaseAuth.getInstance().currentUser?.uid!!
+        receiverId = displayAllUser.userID
         senderRoom = senderId + receiverId
         receiverRoom = receiverId + senderId
 
@@ -146,28 +154,51 @@ class Chatting(private val displayAllUser: DisplayAllUser) : Fragment() {
             requireActivity().supportFragmentManager.popBackStack()
         }
 
-        binding.imgVoiceCall.setOnClickListener {
-            Toast.makeText(
-                requireContext(),
-                "Can't Connect right now !! Try again later",
-                Toast.LENGTH_SHORT
-            ).show()
-        }
-
         binding.imgVideoCall.setOnClickListener {
-            Toast.makeText(
-                requireContext(),
-                "Can't Connect right now !! Try again later",
-                Toast.LENGTH_SHORT
-            ).show()
+            val dialog = Dialog(requireContext())
+            val dialogView = layoutInflater.inflate(R.layout.video_call_layout, null)
+            val videoCall = dialogView.findViewById<ZegoSendCallInvitationButton>(R.id.txtVideoCall)
+            val cancel = dialogView.findViewById<TextView>(R.id.txtCancel)
+            dialog.setContentView(dialogView)
+            dialog.show()
+            videoCall.setIsVideoCall(true)
+            videoCall.resourceID = "zego_uikit_call"
+                val users = ArrayList<ZegoUIKitUser>()
+                users.add(ZegoUIKitUser(displayAllUser.userID, displayAllUser.name))
+                videoCall.setInvitees(users)
+                videoCall.setInvitees(Collections.singletonList(ZegoUIKitUser(displayAllUser.userID, displayAllUser.name)))
+
+
+            cancel.setOnClickListener {
+                dialog.dismiss()
+            }
+        }
+        binding.imgVoiceCall.setOnClickListener {
+            val dialog = Dialog(requireContext())
+            val dialogView = layoutInflater.inflate(R.layout.voice_call_layout, null)
+            val voiceCall = dialogView.findViewById<ZegoSendCallInvitationButton>(R.id.txtVoiceCall)
+            val cancel = dialogView.findViewById<TextView>(R.id.txtCancel)
+            dialog.setContentView(dialogView)
+            dialog.show()
+            voiceCall.setIsVideoCall(false)
+            voiceCall.resourceID = "zego_uikit_call"
+                val users = ArrayList<ZegoUIKitUser>()
+                users.add(ZegoUIKitUser(displayAllUser.userID, displayAllUser.name))
+                voiceCall.setInvitees(users)
+
+
+            cancel.setOnClickListener {
+                dialog.dismiss()
+            }
         }
 
-        val popup = EmojiPopup(binding.rootLayout,binding.editInputMsg)
+
+        val popup = EmojiPopup(binding.rootLayout, binding.editInputMsg)
         binding.imgEmoji.setOnClickListener {
-                popup.toggle()
-            if(!switchIcons){
+            popup.toggle()
+            if (!switchIcons) {
                 binding.imgEmoji.setImageResource(R.drawable.ic_keyboard)
-            }else{
+            } else {
                 binding.imgEmoji.setImageResource(R.drawable.ic_emoji)
             }
             switchIcons = !switchIcons
@@ -244,7 +275,7 @@ class Chatting(private val displayAllUser: DisplayAllUser) : Fragment() {
         val linearLayoutManager = LinearLayoutManager(requireContext())
         linearLayoutManager.stackFromEnd = true
 
-         messageArray = arrayListOf<DeleteMessageData>()
+        messageArray = arrayListOf<DeleteMessageData>()
         chatAdapter =
             ChatAdapter(messageArray, requireContext(), object : ChatAdapter.onClickMessage {
                 override fun onDelete(
@@ -595,6 +626,7 @@ class Chatting(private val displayAllUser: DisplayAllUser) : Fragment() {
         }
     }
 
+
     private fun sendNotification(name: String, message: String, token: String) {
         val requestQueue =
             Volley.newRequestQueue(context?.applicationContext)     // using Volley
@@ -620,12 +652,12 @@ class Chatting(private val displayAllUser: DisplayAllUser) : Fragment() {
         //  adding Header in request
         val jsonObjectRequest = object : JsonObjectRequest(
             Method.POST, url, notificationData,
-            object : com.android.volley.Response.Listener<JSONObject?> {
+            object : Response.Listener<JSONObject?> {
                 override fun onResponse(response: JSONObject?) {
                     Log.d("jsonObject Response :", response.toString())
                 }
             },
-            object : com.android.volley.Response.ErrorListener {
+            object : Response.ErrorListener {
                 override fun onErrorResponse(error: VolleyError?) {
                     Log.e("VolleyError", error!!.message.toString())
                 }
@@ -642,15 +674,11 @@ class Chatting(private val displayAllUser: DisplayAllUser) : Fragment() {
         requestQueue.add(jsonObjectRequest)
     }
 
+
+
     override fun onDestroy() {
         super.onDestroy()
         Log.d("Chat destroy", "Destroyed")
-        val userId = FirebaseAuth.getInstance().currentUser?.uid
-        FirebaseDatabase.getInstance().getReference("ChatRoom/$senderRoom/InChat").child(userId!!)
-            .setValue("NotInChat").addOnSuccessListener {
-                FirebaseDatabase.getInstance().getReference("ChatRoom/$receiverRoom/InChat")
-                    .child(userId!!).setValue("NotInChat")
-            }
         receiverId = ""
     }
 

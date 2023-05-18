@@ -7,7 +7,7 @@
     tools:context=".CallHistory">
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/myStatusLayout"
+        android:id="@+id/myStatusUploadLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="@dimen/_10sdp"
@@ -53,7 +53,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/_10sdp"
         android:text="Recent Calls"
-        app:layout_constraintTop_toBottomOf="@id/myStatusLayout" />
+        app:layout_constraintTop_toBottomOf="@id/myStatusUploadLayout" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerCallHistory"
